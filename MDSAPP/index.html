@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro Diario Hotelero</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            background-color: #F7F7F7; /* Notion-like off-white */
+            color: #37352f; /* Notion-like text color */
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        #root {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #FFFFFF;
+            border-top: 1px solid #ECECEC;
+            font-size: 0.9em;
+            color: #555555;
+        }
+        footer a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .linkedin-logo {
+            font-weight: bold;
+            color: #0077b5;
+        }
+        .cors-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            margin: 10px;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+            text-align: center;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^18.2.0/",
+    "react": "https://esm.sh/react@^18.2.0",
+    "react/": "https://esm.sh/react@^18.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+    <div id="warning-container" style="display: flex; justify-content: center; padding: 0 20px;"></div>
+    <footer>
+        © 2025 MDS Operations Log. Maximizando eficiencia. | 
+        <a href="https://www.linkedin.com/in/martin-schupp-07332511/" target="_blank" rel="noopener noreferrer" aria-label="Perfil de LinkedIn de Martin Schupp">
+            LinkedIn
+        </a>
+    </footer>
+
+    <script type="module">
+        // Contenido de index.tsx directamente aquí
+        import React, { useState, useEffect } from 'react'; // Removed FormEvent
+        import ReactDOM from 'react-dom/client';
+
+        const App = () => {
+            const [fechaRegistro, setFechaRegistro] = useState('');
+            const [fechaReporte, setFechaReporte] = useState(new Date().toISOString().split('T')[0]);
+            const [ocupacionHotel, setOcupacionHotel] = useState('');
+            const [cantidadDesayunos, setCantidadDesayunos] = useState('');
+            const [mozosDesayuno, setMozosDesayuno] = useState('');
+            const [bacherosDesayuno, setBacherosDesayuno] = useState('');
+            const [cocinerosDesayuno, setCocinerosDesayuno] = useState('');
+            const [cubiertosAlmuerzo, setCubiertosAlmuerzo] = useState('');
+            const [mozosAlmuerzo, setMozosAlmuerzo] = useState('');
+            const [bacherosAlmuerzo, setBacherosAlmuerzo] = useState('');
+            const [cocinerosAlmuerzo, setCocinerosAlmuerzo] = useState('');
+            const [cubiertosCena, setCubiertosCena] = useState('');
+            const [mozosCena, setMozosCena] = useState('');
+            const [bacherosCena, setBacherosCena] = useState('');
+            const [cocinerosCena, setCocinerosCena] = useState('');
+
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [submitMessage, setSubmitMessage] = useState('');
+
+            useEffect(() => {
+                setFechaRegistro(new Date().toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }));
+
+                // Advertencia sobre CORS
+                if (window.location.protocol === 'file:') {
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'cors-warning';
+                    warningDiv.innerHTML = '<strong>Advertencia:</strong> Está ejecutando esta página como un archivo local (file:///...). ' +
+                                          'Si la función de guardar datos en Google Sheets no funciona, podría deberse a restricciones de seguridad del navegador (CORS). ' +
+                                          'Para un funcionamiento óptimo, considere alojar esta página en un servidor web (incluso uno local simple) o utilizar un servicio de hosting gratuito.';
+                    const warningContainer = document.getElementById('warning-container');
+                    if(warningContainer) warningContainer.appendChild(warningDiv);
+                }
+            }, []);
+
+            const resetForm = () => {
+                setFechaReporte(new Date().toISOString().split('T')[0]);
+                setOcupacionHotel('');
+                setCantidadDesayunos('');
+                setMozosDesayuno('');
+                setBacherosDesayuno('');
+                setCocinerosDesayuno('');
+                setCubiertosAlmuerzo('');
+                setMozosAlmuerzo('');
+                setBacherosAlmuerzo('');
+                setCocinerosAlmuerzo('');
+                setCubiertosCena('');
+                setMozosCena('');
+                setBacherosCena('');
+                setCocinerosCena('');
+            };
+
+            const handleSubmit = async (event) => { // Type for event (FormEvent<HTMLFormElement>) is ommited in plain JS
+                event.preventDefault();
+                setIsSubmitting(true);
+                setSubmitMessage('');
+
+                const dataToSubmit = {
+                    fechaRegistro,
+                    fechaReporte,
+                    ocupacionHotel: parseInt(ocupacionHotel) || 0,
+                    cantidadDesayunos: parseInt(cantidadDesayunos) || 0,
+                    mozosDesayuno: parseInt(mozosDesayuno) || 0,
+                    bacherosDesayuno: parseInt(bacherosDesayuno) || 0,
+                    cocinerosDesayuno: parseInt(cocinerosDesayuno) || 0,
+                    cubiertosAlmuerzo: parseInt(cubiertosAlmuerzo) || 0,
+                    mozosAlmuerzo: parseInt(mozosAlmuerzo) || 0,
+                    bacherosAlmuerzo: parseInt(bacherosAlmuerzo) || 0,
+                    cocinerosAlmuerzo: parseInt(cocinerosAlmuerzo) || 0,
+                    cubiertosCena: parseInt(cubiertosCena) || 0,
+                    mozosCena: parseInt(mozosCena) || 0,
+                    bacherosCena: parseInt(bacherosCena) || 0,
+                    cocinerosCena: parseInt(cocinerosCena) || 0,
+                };
+
+                const googleAppsScriptUrl = 'https://script.google.com/macros/s/AKfycbxCLyh5dD7aZWUJWEhE_JSpUWcdXq6abvzb1cQ_a4E0dkc2O_RVU7PV98rCUQqwKSzN/exec'; // Asegúrate de que esta URL esté correcta
+
+                console.log("Data to submit:", dataToSubmit);
+                
+                if (googleAppsScriptUrl === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+                    setSubmitMessage('Configuración pendiente: Reemplace YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL en el código.');
+                    setIsSubmitting(false);
+                    setTimeout(() => {
+                        console.log("Simulated submission successful with pending config.");
+                    }, 1000);
+                    return;
+                }
+
+                try {
+                    const response = await fetch(googleAppsScriptUrl, {
+                        method: 'POST',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(dataToSubmit),
+                        redirect: 'follow',
+                    });
+                    
+                    const result = await response.json(); 
+
+                    if (result.status === "success") {
+                        setSubmitMessage('Datos guardados exitosamente!');
+                        resetForm();
+                    } else {
+                        setSubmitMessage(`Error al guardar: ${result.message || 'Error desconocido del script.'}`);
+                    }
+                } catch (error) {
+                    console.error('Error submitting data:', error);
+                    setSubmitMessage(`Error de conexión o configuración: ${error instanceof Error ? error.message : String(error)}. Verifique la consola para más detalles y la URL del script.`);
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
+            const styles = {
+                container: {
+                    backgroundColor: '#FFFFFF',
+                    padding: '30px 40px',
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                    width: '100%',
+                    maxWidth: '700px',
+                    margin: '20px',
+                },
+                title: {
+                    textAlign: 'center',
+                    color: '#37352f',
+                    marginBottom: '30px',
+                    fontSize: '1.8em',
+                },
+                form: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '20px',
+                },
+                fieldset: {
+                    border: '1px solid #ECECEC',
+                    borderRadius: '6px',
+                    padding: '20px',
+                    marginBottom: '10px',
+                },
+                legend: {
+                    padding: '0 10px',
+                    fontWeight: 'bold',
+                    color: '#37352f',
+                    fontSize: '1.1em',
+                },
+                label: {
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: 500,
+                    fontSize: '0.95em',
+                    color: '#555555',
+                },
+                input: {
+                    width: 'calc(100% - 20px)',
+                    padding: '10px',
+                    border: '1px solid #DDDDDD',
+                    borderRadius: '4px',
+                    fontSize: '1em',
+                    backgroundColor: '#FFFFFF',
+                },
+                readOnlyInput: {
+                    width: 'calc(100% - 20px)',
+                    padding: '10px',
+                    border: '1px solid #DDDDDD',
+                    borderRadius: '4px',
+                    fontSize: '1em',
+                    backgroundColor: '#F7F7F7',
+                    color: '#555555',
+                },
+                button: {
+                    padding: '12px 20px',
+                    backgroundColor: '#007BFF',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '1em',
+                    fontWeight: 'bold',
+                    transition: 'background-color 0.2s ease',
+                },
+                buttonDisabled: {
+                    backgroundColor: '#A0A0A0',
+                    cursor: 'not-allowed',
+                },
+                message: {
+                    textAlign: 'center',
+                    marginTop: '15px',
+                    padding: '10px',
+                    borderRadius: '4px',
+                    fontSize: '0.9em',
+                },
+                successMessage: {
+                    backgroundColor: '#D4EDDA',
+                    color: '#155724',
+                },
+                errorMessage: {
+                    backgroundColor: '#F8D7DA',
+                    color: '#721C24',
+                }
+            };
+
+            const InputField = ({id, label, type, value, onChange, required, readOnly, min}) => (
+                React.createElement('div', null,
+                    React.createElement('label', { htmlFor: id, style: styles.label }, `${label}${required ? '*' : ''}:`),
+                    React.createElement('input', {
+                        type: type,
+                        id: id,
+                        name: id,
+                        value: value,
+                        onChange: onChange,
+                        required: required,
+                        readOnly: readOnly,
+                        min: min,
+                        style: readOnly ? styles.readOnlyInput : styles.input,
+                        'aria-label': label
+                    })
+                )
+            );
+
+            return (
+                React.createElement('div', { style: styles.container },
+                    React.createElement('h1', { style: styles.title }, "Registro de Operaciones Diarias del Hotel"),
+                    React.createElement('form', { onSubmit: handleSubmit, style: styles.form },
+                        React.createElement('fieldset', { style: styles.fieldset },
+                            React.createElement('legend', { style: styles.legend }, "Información General"),
+                            React.createElement(InputField, { id: "fechaRegistro", label: "Fecha y Hora del Registro", type: "text", value: fechaRegistro, onChange: () => {}, readOnly: true }),
+                            React.createElement(InputField, { id: "fechaReporte", label: "Fecha del Reporte", type: "date", value: fechaReporte, onChange: e => setFechaReporte(e.target.value), required: true }),
+                            React.createElement(InputField, { id: "ocupacionHotel", label: "# Ocupación del Hotel", type: "number", value: ocupacionHotel, onChange: e => setOcupacionHotel(e.target.value), required: true, min: "0" })
+                        ),
+                        React.createElement('fieldset', { style: styles.fieldset },
+                            React.createElement('legend', { style: styles.legend }, "Desayuno"),
+                            React.createElement(InputField, { id: "cantidadDesayunos", label: "# Cantidad de Desayunos", type: "number", value: cantidadDesayunos, onChange: e => setCantidadDesayunos(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "mozosDesayuno", label: "Mozos Desayuno", type: "number", value: mozosDesayuno, onChange: e => setMozosDesayuno(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "bacherosDesayuno", label: "Bacheros Desayuno", type: "number", value: bacherosDesayuno, onChange: e => setBacherosDesayuno(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "cocinerosDesayuno", label: "Cocineros Desayuno", type: "number", value: cocinerosDesayuno, onChange: e => setCocinerosDesayuno(e.target.value), required: true, min: "0" })
+                        ),
+                        React.createElement('fieldset', { style: styles.fieldset },
+                            React.createElement('legend', { style: styles.legend }, "Almuerzo"),
+                            React.createElement(InputField, { id: "cubiertosAlmuerzo", label: "# Cubiertos Almuerzo", type: "number", value: cubiertosAlmuerzo, onChange: e => setCubiertosAlmuerzo(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "mozosAlmuerzo", label: "Mozos Almuerzo", type: "number", value: mozosAlmuerzo, onChange: e => setMozosAlmuerzo(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "bacherosAlmuerzo", label: "Bacheros Almuerzo", type: "number", value: bacherosAlmuerzo, onChange: e => setBacherosAlmuerzo(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "cocinerosAlmuerzo", label: "Cocineros Almuerzo", type: "number", value: cocinerosAlmuerzo, onChange: e => setCocinerosAlmuerzo(e.target.value), required: true, min: "0" })
+                        ),
+                        React.createElement('fieldset', { style: styles.fieldset },
+                            React.createElement('legend', { style: styles.legend }, "Cena"),
+                            React.createElement(InputField, { id: "cubiertosCena", label: "# Cubiertos Cena", type: "number", value: cubiertosCena, onChange: e => setCubiertosCena(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "mozosCena", label: "Mozos Cena", type: "number", value: mozosCena, onChange: e => setMozosCena(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "bacherosCena", label: "Bacheros Cena", type: "number", value: bacherosCena, onChange: e => setBacherosCena(e.target.value), required: true, min: "0" }),
+                            React.createElement(InputField, { id: "cocinerosCena", label: "Cocineros Cena", type: "number", value: cocinerosCena, onChange: e => setCocinerosCena(e.target.value), required: true, min: "0" })
+                        ),
+                        React.createElement('button', { type: "submit", disabled: isSubmitting, style: {...styles.button, ...(isSubmitting ? styles.buttonDisabled : {}) } },
+                            isSubmitting ? 'Guardando...' : 'Guardar Datos'
+                        ),
+                        submitMessage && React.createElement('p', {
+                            style: {
+                                ...styles.message,
+                                ...(submitMessage.includes('exitosamente') ? styles.successMessage : styles.errorMessage)
+                            },
+                            role: "alert"
+                        }, submitMessage)
+                    )
+                )
+            );
+        };
+
+        const container = document.getElementById('root');
+        if (container) {
+            const root = ReactDOM.createRoot(container);
+            root.render(
+                React.createElement(React.StrictMode, null, React.createElement(App))
+            );
+        } else {
+            console.error("Root element not found");
+        }
+    </script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
